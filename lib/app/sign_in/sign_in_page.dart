@@ -4,15 +4,20 @@ import 'package:time_tracker/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker/services/auth.dart';
 
 class SignInPage extends StatelessWidget {
-  final Function(User) onSignIn;
   final AuthBase auth;
 
-  const SignInPage({Key key, @required this.onSignIn, @required this.auth})
-      : super(key: key);
+  const SignInPage({Key key, @required this.auth}) : super(key: key);
   Future<void> _signInAnonymusly() async {
     try {
-      User user = await auth.signInAnonymously();
-      onSignIn(user);
+      await auth.signInAnonymously();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      await auth.signInWithGoogle();
     } catch (e) {
       print(e.toString());
     }
@@ -51,7 +56,7 @@ class SignInPage extends StatelessWidget {
             color: Colors.white,
             textColor: Colors.black87,
             assetName: 'images/google-logo.png',
-            onPressed: () {},
+            onPressed: _signInWithGoogle,
           ),
           SizedBox(height: 8.0),
           SocialSignInButton(
