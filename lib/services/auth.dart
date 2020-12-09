@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuth;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class User {
@@ -13,6 +14,7 @@ abstract class AuthBase {
   User getCurrentUser();
   Future<User> signInAnonymously();
   Future<User> signInWithGoogle();
+  Future<User> signInWithFacebook();
   Future<void> signOut();
   Stream<User> get onAuthStateChange;
 }
@@ -73,10 +75,37 @@ class Auth implements AuthBase {
   }
 
   @override
+  Future<User> signInWithFacebook() async {
+    final FacebookLogin facebookLogin = FacebookLogin();
+    facebookLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
+    final FacebookLoginResult result = await facebookLogin.logIn(['email']);
+
+    if (result.status == FacebookLoginStatus.loggedIn) {
+      final FacebookAccessToken accessToken = result.accessToken;
+      if (accessToken.token != null) {
+        final firebaseAuth.AuthCredential credential =
+            firebaseAuth.FacebookAuthProvider.credential(accessToken.token);
+
+        final userCredential =
+            await _firebaseAuth.signInWithCredential(credential);
+        return _userFromFirebase(userCredential.user);
+      } else {
+        throw PlatformException(
+            code: 'ERROR_MISSING_FACEBOOK_AUTH_TOKEN',
+            message: 'Missing facebook auth token');
+      }
+    } else {
+      throw PlatformException(
+          code: 'ERROR_ABORTER_BY_USER', message: 'Sign in aborted by user');
+    }
+  }
+
+  @override
   Future<void> signOut() async {
     final googleSignIn = GoogleSignIn();
+    final facebookSignIn = GoogleSignIn();
     await _firebaseAuth.signOut();
     googleSignIn.signOut();
-
+    facebookSignIn.signOut();
   }
 }
