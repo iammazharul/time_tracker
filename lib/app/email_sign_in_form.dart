@@ -26,7 +26,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   EmailSignInFormType _formType = EmailSignInFormType.signIn;
 
+  bool _submitted = false;
+  bool _isLoading = false;
+
   void _submit() async {
+    setState(() {
+      _submitted = true;
+      _isLoading = true;
+    });
     try {
       if (_formType == EmailSignInFormType.signIn) {
         await widget.auth.signInWithEmailAndPassword(_email, _password);
@@ -36,11 +43,16 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       Navigator.of(context).pop();
     } catch (e) {
       print(e.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   void _toggleFormType() {
     setState(() {
+      _submitted = false;
       _formType = _formType == EmailSignInFormType.signIn
           ? EmailSignInFormType.register
           : EmailSignInFormType.signIn;
@@ -54,7 +66,8 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   }
 
   void _emailEditingComplete() {
-    FocusScope.of(context).requestFocus(_passwordFocusNode);
+    final newFocus = widget.emailValidator.iSValid(_email)? _passwordFocusNode : _emailFocusNode;
+    FocusScope.of(context).requestFocus(newFocus);
   }
 
   List<Widget> _buildChildren() {
@@ -77,16 +90,18 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       ),
       SizedBox(height: 8.0),
       FlatButton(
-        onPressed: _toggleFormType,
+        onPressed: !_isLoading ? _toggleFormType : null,
         child: Text(secondaryText),
       )
     ];
   }
 
   TextField _buildPasswordTextField() {
-    bool passwordValid = widget.emailValidator.iSValid(_email);
+    bool showErrorText =
+        _submitted && !widget.emailValidator.iSValid(_email) && !_isLoading;
 
     return TextField(
+      enabled: _isLoading == false,
       onChanged: (password) => _updateState(),
       onEditingComplete: _submit,
       focusNode: _passwordFocusNode,
@@ -95,15 +110,16 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       decoration: InputDecoration(
         labelText: 'Password',
         hintText: '******',
-        errorText: passwordValid ? null : widget.invalidPasswordErrorText,
+        errorText: showErrorText ? widget.invalidPasswordErrorText : null,
       ),
       textInputAction: TextInputAction.done,
     );
   }
 
   TextField _buildEmailTextField() {
-    bool emailValid = widget.emailValidator.iSValid(_email);
+    bool showErrorText = _submitted && !widget.emailValidator.iSValid(_email);
     return TextField(
+      enabled: _isLoading == false,
       onChanged: (email) => _updateState(),
       onEditingComplete: _emailEditingComplete,
       focusNode: _emailFocusNode,
@@ -111,7 +127,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'test@example.com',
-        errorText: emailValid ? null : widget.invalidEmailErrorText,
+        errorText: showErrorText ? widget.invalidEmailErrorText : null,
       ),
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
