@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:time_tracker/app/sign_in/validators.dart';
 import 'package:time_tracker/common_widget/for_submit_button.dart';
 import 'package:flutter/material.dart';
-import 'package:time_tracker/common_widget/platform_exceptino_alert_dialog.dart';
+import 'package:time_tracker/common_widget/platform_exception_alert_dialog.dart';
 import 'package:time_tracker/services/auth.dart';
 
 enum EmailSignInFormType { signIn, register }
@@ -98,7 +98,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     final secondaryText = _formType == EmailSignInFormType.signIn
         ? 'Need an account? Register'
         : 'Have an account? Sign in';
-    bool submitEnalble = widget.emailValidator.iSValid(_email) &&
+    bool submitEnabled = widget.emailValidator.iSValid(_email) &&
         widget.passwordValidator.iSValid(_password);
     return [
       _buildEmailTextField(),
@@ -107,7 +107,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       SizedBox(height: 8.0),
       ForSubmitButton(
         text: primaryText,
-        onPressed: submitEnalble ? _submit : null,
+        onPressed: submitEnabled ? _submit : null,
       ),
       SizedBox(height: 8.0),
       FlatButton(

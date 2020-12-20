@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:time_tracker/app/sign_in/email_sign_in_page.dart';
 import 'package:time_tracker/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker/app/sign_in/social_sign_in_button.dart';
-import 'package:time_tracker/common_widget/platform_exceptino_alert_dialog.dart';
+import 'package:time_tracker/common_widget/platform_exception_alert_dialog.dart';
 import 'package:time_tracker/services/auth.dart';
 
 class SignInPage extends StatefulWidget {
@@ -21,7 +21,7 @@ class _SignInPageState extends State<SignInPage> {
     ).show(context);
   }
 
-  Future<void> _signInAnonymusly(BuildContext context) async {
+  Future<void> _signInAnonymously(BuildContext context) async {
     setState(() => _isLoading = true);
     try {
       final auth = Provider.of<AuthBase>(context, listen: false);
@@ -40,6 +40,7 @@ class _SignInPageState extends State<SignInPage> {
       await auth.signInWithGoogle();
     } on PlatformException catch (exception) {
       if (exception.code != 'ERROR_ABORTER_BY_USER') {
+        print(exception.code);
         _showSignInError(context, exception);
       }
     } finally {
@@ -54,6 +55,7 @@ class _SignInPageState extends State<SignInPage> {
       await auth.signInWithFacebook();
     } on PlatformException catch (exception) {
       if (exception.code != 'ERROR_ABORTER_BY_USER') {
+        print('error code : ${exception.code}');
         _showSignInError(context, exception);
       }
     } finally {
@@ -128,7 +130,7 @@ class _SignInPageState extends State<SignInPage> {
             text: 'Go Anonymous',
             color: Colors.lime[300],
             textColor: Colors.black,
-            onPressed: () => _isLoading ? null : _signInAnonymusly(context),
+            onPressed: () => _isLoading ? null : _signInAnonymously(context),
           ),
         ],
       ),
