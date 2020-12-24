@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:time_tracker/app/sign_in/email_sign_in_model.dart';
+import 'package:time_tracker/app/sign_in/email_sign_in_change_model.dart';
 import 'package:time_tracker/app/sign_in/validators.dart';
 import 'package:time_tracker/common_widget/for_submit_button.dart';
 import 'package:flutter/material.dart';
